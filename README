@@ -1,0 +1,20 @@
+This small server once configured allow to manipulate virtual photos albums.
+It is intented to be used from a mobile phone app to to post photos, and then statically generate galleries optionaly proteced by .htaccess
+
+I created this project to have a simple way to share my daugther's pictures (Olivia => Golivia, I probably deserve a price for originality) with the family on a self-hosted solution
+I don't really want to use flickr, don't want to install apps to spy on me, just want a simple "add to online gallery" functionality and want to play a bit with golang :)
+
+
+The progress:
+- models : 50 %
+- api : 0 %
+- static generation / html templates : 0 %
+
+
+ETA for a proof-of-concept: April 2016
+
+
+----
+The structure of this project is heavilly influenced by (when not copied from) https://github.com/loopfz/scecret
+Thanks Thomas :)
+----
