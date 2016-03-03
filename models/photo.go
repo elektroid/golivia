@@ -2,6 +2,9 @@ package models
 
 import (
 	"errors"
+	"os"
+	"io"
+	"crypto/md5"
 	"github.com/go-gorp/gorp"
 )
 
@@ -13,12 +16,13 @@ type Photo struct {
 }
 
 // Create a photo
-func CreatePhoto(db *gorp.DbMap, Path string) (*Photo, error){
+func CreatePhoto(db *gorp.DbMap, AlbumId int64, Path string) (*Photo, error){
 	if db == nil {
 		return nil, errors.New("Missing db parameter to create photo")
 	}
 	p := &Photo{
 		LocalPath : Path,
+		AlbumId: AlbumId,
 	}
 
 	err := p.Valid()
@@ -32,6 +36,24 @@ func CreatePhoto(db *gorp.DbMap, Path string) (*Photo, error){
 	}
 
 	return p, nil
+}
+
+func (p *Photo) SetFile(filePath string) error{
+  var result []byte
+  file, err := os.Open(filePath)
+  if err != nil {
+    return err
+  }
+  defer file.Close()
+
+  hash := md5.New()
+  if _, err := io.Copy(hash, file); err != nil {
+    return err
+  }
+
+  p.Md5Sum=string(hash.Sum(result))
+  return nil
+
 }
 
 

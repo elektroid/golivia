@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"github.com/go-gorp/gorp"
-	"github.com/loopfz/scecret/constants"
-	"github.com/loopfz/scecret/models"
+	"github.com/elektroid/golivia/constants"
+	"github.com/elektroid/golivia/models"
 	_ "github.com/mattn/go-sqlite3"
 )
 

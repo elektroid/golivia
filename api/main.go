@@ -6,8 +6,8 @@ import (
 	"github.com/loopfz/gadgeto/zesty"
 	"github.com/loopfz/gadgeto/tonic"
 	"github.com/loopfz/gadgeto/tonic/jujuerrhook"
-	"github.com/loopfz/scecret/constants"
-	"github.com/loopfz/scecret/db/initdb"
+	"github.com/elektroid/golivia/constants"
+	"github.com/elektroid/golivia/db/initdb"
 )
 
 var db *gorp.DbMap // TODO remove
@@ -28,7 +28,7 @@ func main() {
 
 	// Scenarios
 	router.POST("/album", tonic.Handler(NewAlbum, 201))
-	router.POST("/photo", tonic.Handler(NewPhoto, 201))
+	router.POST("/album/:album_id/photo", tonic.Handler(NewPhoto, 201))
 
 	router.Run(":8080")
 }

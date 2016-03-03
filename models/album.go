@@ -5,7 +5,7 @@ import (
 
 	"github.com/Masterminds/squirrel"
 	"github.com/go-gorp/gorp"
-	"github.com/loopfz/scecret/utils/sqlgenerator"
+	"github.com/elektroid/golivia/utils/sqlgenerator"
 )
 
 const (
