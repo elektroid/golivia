@@ -25,10 +25,15 @@ func main() {
 	zesty.RegisterDB(zesty.NewDB(tdb), constants.DBName)
 
 	router := gin.Default()
+  	router.Use(gin.Logger())
+  	router.Use(gin.Recovery())
 
 	// Scenarios
 	router.POST("/album", tonic.Handler(NewAlbum, 201))
 	router.POST("/album/:album_id/photo", tonic.Handler(NewPhoto, 201))
+
+	// call to generate
+	router.GET("/album/:album_id", tonic.Handler(GenerateAlbum, 201))
 
 	router.Run(":8080")
 }

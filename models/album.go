@@ -2,7 +2,6 @@ package models
 
 import (
 	"errors"
-
 	"github.com/Masterminds/squirrel"
 	"github.com/go-gorp/gorp"
 	"github.com/elektroid/golivia/utils/sqlgenerator"
@@ -19,6 +18,7 @@ type Album struct {
 	Title  	   string `json:"title" db:"title"`
 	Description string `json:"description" db:"description"`
 	ViewType string `json:"view_type" db:"view_type"`
+	Photos []*Photo 
 }
 
 // Create an icon
@@ -47,9 +47,30 @@ func CreateAlbum(db *gorp.DbMap, Title string, Description string, ViewType stri
 	return a, nil
 }
 
+func (a *Album) LoadPhotos(db *gorp.DbMap)(error){
+	if db == nil {
+		return errors.New("Missing db parameter to list albums")
+	}
+
+	selector := sqlgenerator.PGsql.Select(`*`).From(`"photo"`).Where(squirrel.Eq{`album_id`: a.ID})
+	query, args, err := selector.ToSql()
+	if err != nil {
+		return err
+	}
+
+	var photos []*Photo
+	_, err = db.Select(&photos, query, args...)
+	if err != nil {
+		return  err
+	}
+	a.Photos=photos
+	return nil
+
+}
+
 func ListAlbums(db *gorp.DbMap, ViewType *string)([]*Album, error){
 	if db == nil {
-		return nil, errors.New("Missing db parameter to list icons")
+		return nil, errors.New("Missing db parameter to list albums")
 	}
 
 	selector := sqlgenerator.PGsql.Select(`*`).From(`"album"`)
@@ -70,6 +91,32 @@ func ListAlbums(db *gorp.DbMap, ViewType *string)([]*Album, error){
 	}
 
 	return albums, nil
+}
+
+
+// Load album by ID
+func LoadAlbumFromID(db *gorp.DbMap, ID int64) (*Album, error) {
+	if db == nil {
+		return nil, errors.New("Missing db parameter to list elements")
+	}
+
+	selector := sqlgenerator.PGsql.Select(`*`).From(`"album"`).Where(
+		squirrel.Eq{`id`: ID},
+	)
+
+	query, args, err := selector.ToSql()
+	if err != nil {
+		return nil, err
+	}
+
+	var album Album
+
+	err = db.SelectOne(&album, query, args...)
+	if err != nil {
+		return nil, err
+	}
+
+	return &album, nil
 }
 
 // Verify that an album object is valid before creating/updating it

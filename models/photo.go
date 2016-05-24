@@ -12,6 +12,7 @@ type Photo struct {
 	ID int64 `json:"id" db:"id"`
 	AlbumId int64 `json:"album_id" db:"album_id"`  // no multi album for now
 	LocalPath string `json:"local_path" db:"local_path"`
+	Description string `json:"description" db:"description"`
 	Md5Sum string `json:"md5sum" db:"md5sum"`
 }
 
