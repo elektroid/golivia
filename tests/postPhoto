@@ -1,4 +1,4 @@
-curl -i -X POST -H "Content-Type: multipart/form-data" \
+curl -uadmin:pass -i -X POST -H "Content-Type: multipart/form-data" \
 -F "upload=@olivampire.jpg" \
 127.0.0.1:8080/album/1/photo
 

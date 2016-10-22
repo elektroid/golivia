@@ -5,12 +5,15 @@ import (
 	"github.com/Masterminds/squirrel"
 	"github.com/go-gorp/gorp"
 	"github.com/elektroid/golivia/utils/sqlgenerator"
+	"github.com/elektroid/golivia/constants"
+	"log"
 )
 
 const (
 	// Const names to be retrievable from model code
 	PUBLIC  = "public"
 	PRIVATE   = "private"
+
 )
 
 type Album struct {
@@ -18,7 +21,9 @@ type Album struct {
 	Title  	   string `json:"title" db:"title"`
 	Description string `json:"description" db:"description"`
 	ViewType string `json:"view_type" db:"view_type"`
-	Photos []*Photo 
+	MiniatureWidth uint `json:"miniature_width" db:"miniatureWidth"`
+	MiniatureHeight uint `json:"miniature_height" db:"miniatureHeight"`
+	Photos []*Photo `db:"-"`
 }
 
 // Create an icon
@@ -31,6 +36,9 @@ func CreateAlbum(db *gorp.DbMap, Title string, Description string, ViewType stri
 		Title : Title,
 		Description: Description,
 		ViewType: ViewType,
+		Photos: []*Photo{},
+		MiniatureWidth: constants.DEFAULT_MINIATURE_W,
+		MiniatureHeight: constants.DEFAULT_MINIATURE_H,
 	}
 
 	err := a.Valid()
@@ -42,7 +50,6 @@ func CreateAlbum(db *gorp.DbMap, Title string, Description string, ViewType stri
 	if err != nil {
 		return nil, err
 	}
-
 
 	return a, nil
 }
@@ -100,6 +107,7 @@ func LoadAlbumFromID(db *gorp.DbMap, ID int64) (*Album, error) {
 		return nil, errors.New("Missing db parameter to list elements")
 	}
 
+	log.Println("create request")
 	selector := sqlgenerator.PGsql.Select(`*`).From(`"album"`).Where(
 		squirrel.Eq{`id`: ID},
 	)
@@ -110,7 +118,7 @@ func LoadAlbumFromID(db *gorp.DbMap, ID int64) (*Album, error) {
 	}
 
 	var album Album
-
+	log.Println("call select one")
 	err = db.SelectOne(&album, query, args...)
 	if err != nil {
 		return nil, err

@@ -12,6 +12,8 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
+
+
 func PopulateDbMap(db *gorp.DbMap) error {
 
 	db.AddTableWithName(models.Photo{}, `photo`).SetKeys(true, "id")
@@ -36,22 +38,22 @@ func InitPostgres() (*gorp.DbMap, error) {
 	return db, nil
 }
 
-func InitSqlite() (*gorp.DbMap, error) {
-	return doInitSqlite(false)
+func InitSqlite(databaseDir string) (*gorp.DbMap, error) {
+	return doInitSqlite(databaseDir, false)
 }
 
-func InitSqliteRandom() (*gorp.DbMap, error) {
-	return doInitSqlite(true)
+func InitSqliteRandom(databaseDir string) (*gorp.DbMap, error) {
+	return doInitSqlite(databaseDir, true)
 }
 
-func doInitSqlite(random bool) (*gorp.DbMap, error) {
+func doInitSqlite(databaseDir string, random bool) (*gorp.DbMap, error) {
 
 	var s string
 	if random {
 		rand.Seed(time.Now().UTC().UnixNano())
-		s = fmt.Sprintf("/tmp/%s%d.db", constants.DBName, rand.Int())
+		s = fmt.Sprintf("%s/%s%d.db", databaseDir, constants.DBName, rand.Int())
 	} else {
-		s = fmt.Sprintf("/tmp/%s.db", constants.DBName) // TODO put that somewhere else/constants
+		s = fmt.Sprintf("%s/%s.db", databaseDir, constants.DBName) // TODO put that somewhere else/constants
 	}
 	sqldb, err := sql.Open("sqlite3", s)
 	if err != nil {

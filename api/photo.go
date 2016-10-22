@@ -23,13 +23,15 @@ func NewPhoto(c *gin.Context, in *NewPhotoIn) (*models.Photo, error) {
 		return nil, err	
 	}
 
-	p, err := models.CreatePhoto(db, in.AlbumId, path)
+	a, err := models.LoadAlbumFromID(db, in.AlbumId)
 	if err != nil {
 		return nil, err
 	}
 
-	fmt.Println("set file")
-	p.SetFile(path)
+	p, err := models.CreatePhoto(db, a, path)
+	if err != nil {
+		return nil, err
+	}
 
 	return p, nil
 }
@@ -42,7 +44,6 @@ func ExtractFileFromForm(c *gin.Context) (string, error ){
 		return "", err
 	}
     filename := header.Filename
-    fmt.Println(header.Filename)
     out, err := os.Create("/tmp/"+filename)
     if err != nil {
         log.Fatal(err)

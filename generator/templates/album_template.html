@@ -38,8 +38,8 @@ div.desc {
 {{range $photo := .Photos}}
 {{ $descLen := len $photo.Description}}
 <div class="img">
-  <a target="_blank" href="{{$photo.LocalPath}}">
-    <img src="{{$photo.LocalPath}}" alt="{{if gt $descLen  0}}{{$photo.Description}}{{else}}{{$photo.LocalPath}}{{end}}" width="300" height="200">
+  <a target="_blank" href="/photos/{{$photo.LocalPath}}">
+    <img src="/photos/minis/{{$photo.LocalPath}}" alt="{{if gt $descLen  0}}{{$photo.Description}}{{else}}{{$photo.LocalPath}}{{end}}" >
   </a>
   <div class="desc">{{$photo.Description}}{{$photo.LocalPath}}</div>
 </div>

@@ -4,8 +4,14 @@ import (
 	"errors"
 	"os"
 	"io"
+	"fmt"
 	"crypto/md5"
 	"github.com/go-gorp/gorp"
+	"github.com/elektroid/golivia/imgResize"
+	"github.com/elektroid/golivia/constants"
+	"github.com/Masterminds/squirrel"
+	"github.com/elektroid/golivia/utils/sqlgenerator"
+	"path/filepath"
 )
 
 type Photo struct {
@@ -15,20 +21,43 @@ type Photo struct {
 	Description string `json:"description" db:"description"`
 	Md5Sum string `json:"md5sum" db:"md5sum"`
 }
+var PathSeparator = fmt.Sprintf("%c", os.PathSeparator)
 
 // Create a photo
-func CreatePhoto(db *gorp.DbMap, AlbumId int64, Path string) (*Photo, error){
+func CreatePhoto(db *gorp.DbMap, A *Album, Path string) (*Photo, error){
 	if db == nil {
 		return nil, errors.New("Missing db parameter to create photo")
 	}
 	p := &Photo{
-		LocalPath : Path,
-		AlbumId: AlbumId,
+		AlbumId: A.ID,
 	}
 
-	err := p.Valid()
+	md5sum, err := md5sum(Path)
+	if err != nil{
+		return nil, err
+	}
+ 	p.Md5Sum = md5sum
+
+	existing, err := LoadPhotoFromMd5(db, p.Md5Sum)
+	if err==nil{
+		return nil, fmt.Errorf("Image already exists under album %d ", existing.AlbumId)		
+	}
+
+	newPath := constants.PhotosDir+PathSeparator+md5sum+filepath.Ext(Path)
+	p.LocalPath=md5sum+filepath.Ext(Path)
+	err = os.Rename(Path, newPath)
+	if err != nil{
+		return nil, err
+	}
+
+	err = p.Valid()
 	if err != nil {
 		return nil, err
+	}
+
+	err = p.SetMini(A.MiniatureWidth, A.MiniatureHeight, constants.MiniatureQuality, constants.PhotosDir+PathSeparator+constants.MiniSubDir, newPath)
+	if err != nil {
+		return nil, err		
 	}
 
 	err = db.Insert(p)
@@ -39,24 +68,52 @@ func CreatePhoto(db *gorp.DbMap, AlbumId int64, Path string) (*Photo, error){
 	return p, nil
 }
 
-func (p *Photo) SetFile(filePath string) error{
-  var result []byte
-  file, err := os.Open(filePath)
-  if err != nil {
-    return err
-  }
-  defer file.Close()
-
-  hash := md5.New()
-  if _, err := io.Copy(hash, file); err != nil {
-    return err
-  }
-
-  p.Md5Sum=string(hash.Sum(result))
-  return nil
-
+func (p *Photo) SetMini(targetWidth uint, targetHeight uint, quality int, miniDirPath string, originalPath string) error{
+		var miniP=miniDirPath+PathSeparator+p.LocalPath
+		err:=imgResize.MakeMini(targetWidth, targetHeight, quality, originalPath, miniP)
+		if err!=nil{
+			return err
+		}
+		return nil
 }
 
+func md5sum(filePath string) (string, error){
+	file, err := os.Open(filePath)
+	if err != nil {
+		return "", err
+	}
+	defer file.Close()
+
+	hash := md5.New()
+	if _, err := io.Copy(hash, file); err != nil {
+		return "", err
+	}
+	return fmt.Sprintf("%x", hash.Sum(nil)), nil
+}
+
+// Load album by ID
+func LoadPhotoFromMd5(db *gorp.DbMap, Md5Sum string) (*Photo, error) {
+	if db == nil {
+		return nil, errors.New("Missing db parameter to list elements")
+	}
+
+	selector := sqlgenerator.PGsql.Select(`*`).From(`"photo"`).Where(
+		squirrel.Eq{`md5sum`: Md5Sum},
+	)
+
+	query, args, err := selector.ToSql()
+	if err != nil {
+		return nil, err
+	}
+
+	var photo Photo
+	err = db.SelectOne(&photo, query, args...)
+	if err != nil {
+		return nil, err
+	}
+
+	return &photo, nil
+}
 
 // Verify that a photo object is valid before creating/updating it
 func (p *Photo) Valid() error {
