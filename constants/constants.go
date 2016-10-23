@@ -10,4 +10,5 @@ const (
 
 
 var PhotosDir string
+var TmpDir string
 

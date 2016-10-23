@@ -107,7 +107,6 @@ func LoadAlbumFromID(db *gorp.DbMap, ID int64) (*Album, error) {
 		return nil, errors.New("Missing db parameter to list elements")
 	}
 
-	log.Println("create request")
 	selector := sqlgenerator.PGsql.Select(`*`).From(`"album"`).Where(
 		squirrel.Eq{`id`: ID},
 	)
@@ -118,7 +117,6 @@ func LoadAlbumFromID(db *gorp.DbMap, ID int64) (*Album, error) {
 	}
 
 	var album Album
-	log.Println("call select one")
 	err = db.SelectOne(&album, query, args...)
 	if err != nil {
 		return nil, err

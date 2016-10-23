@@ -20,6 +20,7 @@ type Photo struct {
 	LocalPath string `json:"local_path" db:"local_path"`
 	Description string `json:"description" db:"description"`
 	Md5Sum string `json:"md5sum" db:"md5sum"`
+	Time time.Time `json:"time" db:"time"`
 }
 var PathSeparator = fmt.Sprintf("%c", os.PathSeparator)
 
@@ -43,6 +44,7 @@ func CreatePhoto(db *gorp.DbMap, A *Album, Path string) (*Photo, error){
 		return nil, fmt.Errorf("Image already exists under album %d ", existing.AlbumId)		
 	}
 
+
 	newPath := constants.PhotosDir+PathSeparator+md5sum+filepath.Ext(Path)
 	p.LocalPath=md5sum+filepath.Ext(Path)
 	err = os.Rename(Path, newPath)
@@ -55,7 +57,7 @@ func CreatePhoto(db *gorp.DbMap, A *Album, Path string) (*Photo, error){
 		return nil, err
 	}
 
-	err = p.SetMini(A.MiniatureWidth, A.MiniatureHeight, constants.MiniatureQuality, constants.PhotosDir+PathSeparator+constants.MiniSubDir, newPath)
+	err = p.setMini(A.MiniatureWidth, A.MiniatureHeight, constants.MiniatureQuality, constants.PhotosDir+PathSeparator+constants.MiniSubDir, newPath)
 	if err != nil {
 		return nil, err		
 	}
@@ -68,7 +70,7 @@ func CreatePhoto(db *gorp.DbMap, A *Album, Path string) (*Photo, error){
 	return p, nil
 }
 
-func (p *Photo) SetMini(targetWidth uint, targetHeight uint, quality int, miniDirPath string, originalPath string) error{
+func (p *Photo) setMini(targetWidth uint, targetHeight uint, quality int, miniDirPath string, originalPath string) error{
 		var miniP=miniDirPath+PathSeparator+p.LocalPath
 		err:=imgResize.MakeMini(targetWidth, targetHeight, quality, originalPath, miniP)
 		if err!=nil{

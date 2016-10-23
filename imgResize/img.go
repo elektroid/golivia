@@ -8,7 +8,6 @@ import (
 
 
 
-
 // file copy done with io.Copy
 func copy(input string, output string) error {
 	// open files r and w
@@ -30,10 +29,7 @@ func copy(input string, output string) error {
 		return err
 	}
 	return nil
-
 }
-
-
 
 // ugly map of input/output formats
 func outputFormat(inputFormat string) string {
@@ -44,7 +40,6 @@ func outputFormat(inputFormat string) string {
 		return "gif"
 	}
 	return "jpeg"
-
 }
 
 func MakeMini(targetWidth uint, targetHeight uint, quality int, inputFile string, outputFile string) error {
@@ -79,7 +74,6 @@ func MakeMini(targetWidth uint, targetHeight uint, quality int, inputFile string
 		targetWidth = baseProportion * targetHeight
 	}
 
-
 	// Resize the image using the Lanczos filter
 	// The blur factor is a float, where > 1 is blurry, < 1 is sharp
 	err = mw.ResizeImage(targetWidth, targetHeight, imagick.FILTER_LANCZOS, 1)
@@ -108,5 +102,4 @@ func MakeMini(targetWidth uint, targetHeight uint, quality int, inputFile string
 
 	err = mw.WriteImageFile(fo)
 	return err
-	
 }

@@ -24,7 +24,6 @@ func NewAlbum(c *gin.Context, in *NewAlbumIn) (*models.Album, error) {
 	return a, nil
 }
 
-
 type GetAlbumIn struct {
 	AlbumId int64 `path:"album_id, required"`
 }
@@ -42,7 +41,6 @@ func GenerateAlbum(c *gin.Context, in *GetAlbumIn)  error {
 	}
 
 	return generator.GenerateAlbum(album)
-	
 }
 
 

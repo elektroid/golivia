@@ -7,6 +7,7 @@ import(
 	"fmt"
 )
 
+// unused, meant for static generation (but going with a live server for now)
 func GenerateHtaccess(accounts gin.Accounts, dir string) error{
 	hashes := htpasswd.HashedPasswords(make(map[string]string))
 
@@ -21,8 +22,6 @@ func GenerateHtaccess(accounts gin.Accounts, dir string) error{
 	if err!=nil{
 		return err
 	}
-
-
 
 	return nil
 }

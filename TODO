@@ -1,0 +1,23 @@
+TODO
+
+** Cleaning current version
+-make a page to list albums
+-make a simple interface to edit properties of albums
+
+#nice to have
+-add a cover photo for albums
+
+
+** Making galleries by dates (so we can later just massively upload and let the server sort it for us)
+-use some exif parser to store dates on photos, maybe https://godoc.org/github.com/rwcarlsen/goexif/exif#example-Decode
+-check if Time.time works ok with sqlite
+
+
+** Making a client that will scan photo and upload all to servers
+-take basedir, list all files and create associated md5sum
+-post to servers after checking md5 does not exists
+-make a better algo for that (sounds a lot like rsync...)
+
+**Tagging photos
+-Could be nice to add multiple tags with people, actions ... (but will I ever take the time to tag)
+

@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/elektroid/golivia/models"
+	"github.com/elektroid/golivia/constants"
 	"fmt"
 	"os"
 	"log"
@@ -16,10 +17,8 @@ type NewPhotoIn struct {
 
 func NewPhoto(c *gin.Context, in *NewPhotoIn) (*models.Photo, error) {
 
-	fmt.Println("extract file from form")
 	path, err := ExtractFileFromForm(c)
 	if err!=nil{
-		fmt.Println("failed to extract from form")
 		return nil, err	
 	}
 
@@ -44,17 +43,17 @@ func ExtractFileFromForm(c *gin.Context) (string, error ){
 		return "", err
 	}
     filename := header.Filename
-    out, err := os.Create("/tmp/"+filename)
+    out, err := os.Create(constants.TmpDir+"/"+filename)
     if err != nil {
         log.Fatal(err)
-		return "", errors.New("extraction failure")
+		return "", errors.New("extraction failure, not able to create")
     }
     defer out.Close()
     _, err = io.Copy(out, file)
     if err != nil {
         log.Fatal(err)
-	    return "", errors.New("extraction failure")
+	    return "", errors.New("extraction failure, not able to copy content")
     }   
-	return "/tmp/"+filename, nil
+	return constants.TmpDir+"/"+filename, nil
 }
 

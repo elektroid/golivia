@@ -10,11 +10,32 @@ import (
 	"github.com/elektroid/golivia/db/initdb"
 	"flag"
 	"fmt"
+	"time"
+	"log"
 	"github.com/vharitonsky/iniflags"
 )
 
 
+func Logger() gin.HandlerFunc {
+    return func(c *gin.Context) {
+        t := time.Now()
 
+        // Set example variable
+        c.Set("example", "12345")
+
+        // before request
+
+        c.Next()
+
+        // after request
+        latency := time.Since(t)
+        log.Print(latency)
+
+        // access the status we are sending
+        status := c.Writer.Status()
+        log.Println(status)
+    }
+}
 
 
 var db *gorp.DbMap // TODO remove
@@ -24,13 +45,15 @@ func main() {
 	// let's read config
 	var (
     	dataBaseDir   = flag.String("dataBaseDir", "/tmp", "Directory where sqlite db is")
-    	photoBaseDir  = flag.String("photosBaseDir", "/tmp", "Directory where photos are stored")
+    	photosBaseDir = flag.String("photosBaseDir", "/tmp", "Directory where photos are stored")
+    	tmpDir		  = flag.String("tmpDir", "/tmp", "Directory where photos are stored")
     	adminPassword = flag.String("adminPassword", "adminPassword", "Admin password to create and modify albums/photos")
     	usersPassword = flag.String("usersPassword", "usersPassword", "User password to view albums/photos")
     	serverPort    = flag.Int("serverPort", 8080, "Port to listen to")
 	)
 	iniflags.Parse()
-	constants.PhotosDir = *photoBaseDir
+	constants.PhotosDir = *photosBaseDir
+	constants.TmpDir = *tmpDir
 
 
 	// start db
@@ -44,7 +67,7 @@ func main() {
 	zesty.RegisterDB(zesty.NewDB(tdb), constants.DBName)
 
 	router := gin.Default()
-  	router.Use(gin.Logger())
+  	router.Use(Logger())
   	router.Use(gin.Recovery())
 
   	// set up admin routes
