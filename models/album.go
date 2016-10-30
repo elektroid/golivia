@@ -6,7 +6,7 @@ import (
 	"github.com/go-gorp/gorp"
 	"github.com/elektroid/golivia/utils/sqlgenerator"
 	"github.com/elektroid/golivia/constants"
-	"log"
+//	"log"
 )
 
 const (

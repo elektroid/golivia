@@ -5,21 +5,26 @@ import (
     "os"
     "bytes"
     "log"
+    "path/filepath"
 	"github.com/elektroid/golivia/models"
 	)
 
 
-func getContent(album *models.Album) (string, error){
+var BaseTemplate="./generator/templates/album_template.html"
+var GalleriaTemplate="./generator/templates/galleria_template.html"
+
+func getContent(album *models.Album, template_file string) (string, error){
    t := template.New("album") //create a new template
     var err error
-    t, err = t.ParseFiles("./generator/templates/album_template.html") //open and parse a template text file
+    t, err = t.ParseFiles(template_file) //open and parse a template text file
     if err!=nil{
         return "", err
     }
    
     var w bytes.Buffer 
 
-    if err = t.ExecuteTemplate(&w, "album_template.html", album); err != nil {
+    _, file := filepath.Split(template_file)
+    if err = t.ExecuteTemplate(&w, file, album); err != nil {
         w.WriteString(err.Error())
         log.Fatal(err)
         return "", err
@@ -29,7 +34,7 @@ func getContent(album *models.Album) (string, error){
 }
 
 func GenerateAlbum(album *models.Album) error{
-	content, err := getContent(album)
+	content, err := getContent(album, BaseTemplate)
     if err != nil{
         return err
     }
@@ -45,5 +50,9 @@ func GenerateAlbum(album *models.Album) error{
 }
 
 func GetAlbumHtml(album *models.Album) ( string, error){
-    return getContent(album)
+    return getContent(album, BaseTemplate)
+}
+
+func GetGalleriaHtml(album *models.Album) ( string, error){
+    return getContent(album, GalleriaTemplate)
 }

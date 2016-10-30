@@ -12,6 +12,7 @@ import (
 	"github.com/Masterminds/squirrel"
 	"github.com/elektroid/golivia/utils/sqlgenerator"
 	"path/filepath"
+//	"time"
 )
 
 type Photo struct {
@@ -20,7 +21,7 @@ type Photo struct {
 	LocalPath string `json:"local_path" db:"local_path"`
 	Description string `json:"description" db:"description"`
 	Md5Sum string `json:"md5sum" db:"md5sum"`
-	Time time.Time `json:"time" db:"time"`
+//	Time time.Time `json:"time" db:"time"`
 }
 var PathSeparator = fmt.Sprintf("%c", os.PathSeparator)
 

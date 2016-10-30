@@ -4,7 +4,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/elektroid/golivia/models"
 	"github.com/elektroid/golivia/constants"
-	"fmt"
 	"os"
 	"log"
 	"errors"

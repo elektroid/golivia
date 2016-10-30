@@ -83,11 +83,13 @@ func main() {
     }))
 	viewers.POST("/album/:album_id", tonic.Handler(GenerateAlbum, 201))
 	viewers.GET("/album/:album_id", tonic.Handler(GetAlbumHtml, 201))
+	viewers.GET("/gal/:album_id", tonic.Handler(GetGalleriaHtml, 201))
 
 
 	router.Static("/photos", constants.PhotosDir)
   //  router.StaticFS("/more_static", http.Dir("my_file_system"))
-    router.StaticFile("/favicon.ico", "./resources/favicon.ico")
+	router.Static("/resources", "./resources")
+    //router.StaticFile("/favicon.ico", "./resources/favicon.ico")
 
 
 	router.Run(fmt.Sprintf(":%d", *serverPort))

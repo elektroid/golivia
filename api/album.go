@@ -4,8 +4,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/elektroid/golivia/models"
 	"github.com/elektroid/golivia/generator"
-	"log"
-
 )
 
 type NewAlbumIn struct {
@@ -34,7 +32,6 @@ func GenerateAlbum(c *gin.Context, in *GetAlbumIn)  error {
 		return err
 	}
 	
-	log.Println("go load photos now")
 	err=album.LoadPhotos(db)
 	if err!=nil{
 		return err
@@ -50,7 +47,6 @@ func GetAlbumHtml(c *gin.Context, in *GetAlbumIn)  error {
 		return err
 	}
 	
-	log.Println("go load photos now")
 	err=album.LoadPhotos(db)
 	if err!=nil{
 		return err
@@ -65,5 +61,24 @@ func GetAlbumHtml(c *gin.Context, in *GetAlbumIn)  error {
 	return nil
 }
 
+func GetGalleriaHtml(c *gin.Context, in *GetAlbumIn)  error {
+	album, err := models.LoadAlbumFromID(db, in.AlbumId)
+	if err!=nil{
+		return err
+	}
+	
+	err=album.LoadPhotos(db)
+	if err!=nil{
+		return err
+	}
+
+	content, err := generator.GetGalleriaHtml(album)
+	if err!=nil{
+		return err
+	}
+
+	c.Data(200, "text/html",   []byte(content))
+	return nil
+}
 
 
