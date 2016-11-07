@@ -6,6 +6,7 @@ import (
 	"github.com/go-gorp/gorp"
 	"github.com/elektroid/golivia/utils/sqlgenerator"
 	"github.com/elektroid/golivia/constants"
+	"fmt"
 //	"log"
 )
 
@@ -72,8 +73,38 @@ func (a *Album) LoadPhotos(db *gorp.DbMap)(error){
 	}
 	a.Photos=photos
 	return nil
+}
+
+
+func LoadPhotosByDate(db *gorp.DbMap, Year int64, Month int64)(*Album, error){
+	if db == nil {
+		return nil, errors.New("Missing db parameter to list albums")
+	}
+
+
+
+	query := "SELECT * FROM photo WHERE strftime('%Y-%m', time) = '"+fmt.Sprintf("%d-%02d", Year, Month)+"'"
+	fmt.Print(query)
+
+	a := &Album{
+		Title : fmt.Sprintf("Album for %d-%02d", Year, Month),
+		Description: fmt.Sprintf("Album for %d-%02d", Year, Month),
+		MiniatureWidth: constants.DEFAULT_MINIATURE_W,
+		MiniatureHeight: constants.DEFAULT_MINIATURE_H,
+	}
+
+
+	var photos []*Photo
+	_, err := db.Select(&photos, query, nil)
+	if err != nil {
+		return nil, err
+	}
+	a.Photos=photos
+	return a, nil
 
 }
+
+
 
 func ListAlbums(db *gorp.DbMap, ViewType *string)([]*Album, error){
 	if db == nil {

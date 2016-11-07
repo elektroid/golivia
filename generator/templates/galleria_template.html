@@ -48,6 +48,11 @@
     $(function() {
         // Load the classic theme
         Galleria.loadTheme('/resources/galleria/themes/classic/galleria.classic.min.js');
+        Galleria.configure({
+            thumbCrop: true,
+    		lightbox: true,
+    		imageMargin: 1
+    	});
 
         // Initialize Galleria
         Galleria.run('#galleria');

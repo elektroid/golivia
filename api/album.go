@@ -82,3 +82,24 @@ func GetGalleriaHtml(c *gin.Context, in *GetAlbumIn)  error {
 }
 
 
+type GetAlbumByDateIn struct {
+	Year int64 `path:"year, required"`
+	Month int64 `path:"month, required"`
+}
+
+func GetAlbumByDate(c *gin.Context, in *GetAlbumByDateIn) error {
+	a, err := models.LoadPhotosByDate(db, in.Year, in.Month)
+	if err!=nil{
+		return err
+	}
+
+	content, err := generator.GetAlbumHtml(a)
+	if err!=nil{
+		return err
+	}
+
+	c.Data(200, "text/html",   []byte(content))
+	return nil
+}
+
+

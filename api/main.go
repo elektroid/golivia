@@ -84,6 +84,7 @@ func main() {
 	viewers.POST("/album/:album_id", tonic.Handler(GenerateAlbum, 201))
 	viewers.GET("/album/:album_id", tonic.Handler(GetAlbumHtml, 201))
 	viewers.GET("/gal/:album_id", tonic.Handler(GetGalleriaHtml, 201))
+	viewers.GET("/dates/:year/:month", tonic.Handler(GetAlbumByDate, 201))
 
 
 	router.Static("/photos", constants.PhotosDir)

@@ -5,6 +5,8 @@ It is intented to be used from a mobile phone app to to post photos, and then st
 To run pass -config config.ini
 You can override option with -flagX=foobar syntax
 
+You need at least one album to post photos, however since I added exif parsing I'm more thinking of just browsing by dates
+
 
 
 ---------------

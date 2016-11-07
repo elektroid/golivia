@@ -11,8 +11,12 @@ import (
 	"github.com/elektroid/golivia/constants"
 	"github.com/Masterminds/squirrel"
 	"github.com/elektroid/golivia/utils/sqlgenerator"
+	"github.com/rwcarlsen/goexif/exif"
+	//"github.com/go-sql-driver/mysql"
+
 	"path/filepath"
-//	"time"
+	"time"
+	"log"
 )
 
 type Photo struct {
@@ -21,7 +25,8 @@ type Photo struct {
 	LocalPath string `json:"local_path" db:"local_path"`
 	Description string `json:"description" db:"description"`
 	Md5Sum string `json:"md5sum" db:"md5sum"`
-//	Time time.Time `json:"time" db:"time"`
+	//Time mysql.NullTime `json:"time" db:"time"`
+	Time *time.Time `json:"time" db:"time"`
 }
 var PathSeparator = fmt.Sprintf("%c", os.PathSeparator)
 
@@ -39,6 +44,14 @@ func CreatePhoto(db *gorp.DbMap, A *Album, Path string) (*Photo, error){
 		return nil, err
 	}
  	p.Md5Sum = md5sum
+
+ 	d, err := getExifDate(Path)
+ 	if err == nil {
+ 		//p.Time=mysql.NullTime{Time: *d, Valid: true}
+ 		p.Time=d
+ 	}else{
+ 		log.Print(err)
+ 	}
 
 	existing, err := LoadPhotoFromMd5(db, p.Md5Sum)
 	if err==nil{
@@ -78,6 +91,26 @@ func (p *Photo) setMini(targetWidth uint, targetHeight uint, quality int, miniDi
 			return err
 		}
 		return nil
+}
+
+
+func getExifDate(filePath string) (*time.Time, error){
+
+	f, err := os.Open(filePath)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+
+	x, err := exif.Decode(f)
+    if err != nil {
+        return nil, err
+    }
+    t, err := x.DateTime()
+    if err != nil{
+    	return nil, err
+    }
+    return &t, err
 }
 
 func md5sum(filePath string) (string, error){
