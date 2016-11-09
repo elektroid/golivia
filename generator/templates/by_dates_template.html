@@ -1,0 +1,40 @@
+<html>
+
+<link rel="stylesheet" href="http://www.w3schools.com/lib/w3.css">
+
+<head>
+<style>
+
+
+div.desc {
+    padding: 15px;
+    text-align: center;
+}
+</style>
+<title>Photos by dates</title>
+</head>
+
+<body>
+
+<div>
+  <h1>Photos by dates</h1>
+</div>
+
+
+<div>
+{{range $d := .}}
+  <div class='w3-container w3-quarter'>
+    {{$d.Year}}/{{$d.Month}}
+    <ul>
+      <li>
+        <a href="/date/{{$d.Year}}/{{$d.Month}}">All photos </a>
+      </li>
+    </ul>
+  </div>
+{{ end }}
+
+
+
+
+</body>
+</html> 

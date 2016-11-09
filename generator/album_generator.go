@@ -2,7 +2,6 @@ package generator
 
 import (
 	"html/template"
-    "os"
     "bytes"
     "log"
     "path/filepath"
@@ -12,9 +11,10 @@ import (
 
 var BaseTemplate="./generator/templates/album_template.html"
 var GalleriaTemplate="./generator/templates/galleria_template.html"
+var ListTemplate="./generator/templates/by_dates_template.html"
 
-func getContent(album *models.Album, template_file string) (string, error){
-   t := template.New("album") //create a new template
+func getAlbumContent(album *models.Album, template_file string) (string, error){
+    t := template.New("album") //create a new template
     var err error
     t, err = t.ParseFiles(template_file) //open and parse a template text file
     if err!=nil{
@@ -33,26 +33,31 @@ func getContent(album *models.Album, template_file string) (string, error){
     return w.String(), nil
 }
 
-func GenerateAlbum(album *models.Album) error{
-	content, err := getContent(album, BaseTemplate)
-    if err != nil{
-        return err
-    }
-    f, err := os.Create("/tmp/album.html")
-    if err!=nil{
-      return err
-    }
-
-    f.WriteString(content)
-
-    f.Close()
-    return nil
-}
 
 func GetAlbumHtml(album *models.Album) ( string, error){
-    return getContent(album, BaseTemplate)
+    return getAlbumContent(album, BaseTemplate)
 }
 
 func GetGalleriaHtml(album *models.Album) ( string, error){
-    return getContent(album, GalleriaTemplate)
+    return getAlbumContent(album, GalleriaTemplate)
+}
+
+func GetDatesListHtml(dates []*models.Populated) ( string, error){
+    t := template.New("list") //create a new template
+    var err error
+    t, err = t.ParseFiles(ListTemplate) //open and parse a template text file
+    if err!=nil{
+        return "", err
+    }
+   
+    var w bytes.Buffer 
+
+    _, file := filepath.Split(ListTemplate)
+    if err = t.ExecuteTemplate(&w, file, dates); err != nil {
+        w.WriteString(err.Error())
+        log.Fatal(err)
+        return "", err
+    }
+    
+    return w.String(), nil
 }

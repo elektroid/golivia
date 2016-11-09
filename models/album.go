@@ -81,10 +81,7 @@ func LoadPhotosByDate(db *gorp.DbMap, Year int64, Month int64)(*Album, error){
 		return nil, errors.New("Missing db parameter to list albums")
 	}
 
-
-
 	query := "SELECT * FROM photo WHERE strftime('%Y-%m', time) = '"+fmt.Sprintf("%d-%02d", Year, Month)+"'"
-	fmt.Print(query)
 
 	a := &Album{
 		Title : fmt.Sprintf("Album for %d-%02d", Year, Month),
@@ -102,6 +99,27 @@ func LoadPhotosByDate(db *gorp.DbMap, Year int64, Month int64)(*Album, error){
 	a.Photos=photos
 	return a, nil
 
+}
+
+
+type Populated struct{
+	Year string
+	Month string
+}
+func ListMonthsWithPhotos(db *gorp.DbMap) ([]*Populated, error){
+	if db == nil {
+		return nil, errors.New("Missing db parameter to list albums")
+	}
+
+	query := "SELECT Year, Month FROM (SELECT DISTINCT( strftime('%Y-%m', time)) as d,  strftime('%Y', time) as Year,  strftime('%m', time) as Month FROM photo WHERE time is not null ORDER BY d)"
+	
+	var pop []*Populated
+	_, err := db.Select(&pop, query)
+	if err != nil {
+		return nil, err
+	}
+
+	return pop, nil
 }
 
 

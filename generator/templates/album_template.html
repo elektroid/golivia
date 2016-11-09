@@ -1,4 +1,6 @@
 <html>
+<link rel="stylesheet" href="http://www.w3schools.com/lib/w3.css">
+
 <head>
 <style>
 div.img {
@@ -39,9 +41,9 @@ div.desc {
 {{ $descLen := len $photo.Description}}
 <div class="img">
   <a target="_blank" href="/photos/{{$photo.LocalPath}}">
-    <img src="/photos/minis/{{$photo.LocalPath}}" alt="{{if gt $descLen  0}}{{$photo.Description}}{{else}}{{$photo.LocalPath}}{{end}} {{$photo.Time}}" >
+    <img src="/photos/minis/{{$photo.LocalPath}}" alt="{{if gt $descLen  0}}{{$photo.Description}}{{end}} {{$photo.Time}}" >
   </a>
-  <div class="desc">{{$photo.Description}}{{$photo.LocalPath}}</div>
+  <div class="desc">{{$photo.Description}}</div>
 </div>
 
 {{ end }}

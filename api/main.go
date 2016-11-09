@@ -81,17 +81,19 @@ func main() {
 	viewers := router.Group("/", gin.BasicAuth(gin.Accounts{
         "amigos": *usersPassword,
     }))
-	viewers.POST("/album/:album_id", tonic.Handler(GenerateAlbum, 201))
-	viewers.GET("/album/:album_id", tonic.Handler(GetAlbumHtml, 201))
+	viewers.GET("/album1/:album_id", tonic.Handler(GetAlbumHtml, 201))
 	viewers.GET("/gal/:album_id", tonic.Handler(GetGalleriaHtml, 201))
-	viewers.GET("/dates/:year/:month", tonic.Handler(GetAlbumByDate, 201))
+	
+	viewers.GET("/by_dates", tonic.Handler(GetPopulatedDates, 201))
+	viewers.GET("/date/:year/:month", tonic.Handler(GetAlbumByDate, 201))
 
 
 	router.Static("/photos", constants.PhotosDir)
   //  router.StaticFS("/more_static", http.Dir("my_file_system"))
 	router.Static("/resources", "./resources")
+	router.StaticFile("/", "./generator/templates/assets/welcome.html")
     //router.StaticFile("/favicon.ico", "./resources/favicon.ico")
 
 
-	router.Run(fmt.Sprintf(":%d", *serverPort))
+	panic(router.Run(fmt.Sprintf(":%d", *serverPort)))
 }

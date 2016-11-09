@@ -26,19 +26,7 @@ type GetAlbumIn struct {
 	AlbumId int64 `path:"album_id, required"`
 }
 
-func GenerateAlbum(c *gin.Context, in *GetAlbumIn)  error {
-	album, err := models.LoadAlbumFromID(db, in.AlbumId)
-	if err!=nil{
-		return err
-	}
-	
-	err=album.LoadPhotos(db)
-	if err!=nil{
-		return err
-	}
 
-	return generator.GenerateAlbum(album)
-}
 
 
 func GetAlbumHtml(c *gin.Context, in *GetAlbumIn)  error {
@@ -102,4 +90,20 @@ func GetAlbumByDate(c *gin.Context, in *GetAlbumByDateIn) error {
 	return nil
 }
 
+
+type NullIn struct {
+}
+
+func GetPopulatedDates(c *gin.Context, in *NullIn) error {
+	dates, err := models.ListMonthsWithPhotos(db)
+
+	content, err := generator.GetDatesListHtml(dates)
+	if err!=nil{
+		return err
+	}
+
+	c.Data(200, "text/html",   []byte(content))
+	return nil
+
+}
 
