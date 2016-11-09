@@ -3,12 +3,11 @@ package models
 import (
 	"errors"
 	"os"
-	"io"
 	"fmt"
-	"crypto/md5"
 	"github.com/go-gorp/gorp"
 	"github.com/elektroid/golivia/imgResize"
 	"github.com/elektroid/golivia/constants"
+	"github.com/elektroid/golivia/utils/checksum"
 	"github.com/Masterminds/squirrel"
 	"github.com/elektroid/golivia/utils/sqlgenerator"
 	"github.com/rwcarlsen/goexif/exif"
@@ -39,7 +38,7 @@ func CreatePhoto(db *gorp.DbMap, A *Album, Path string) (*Photo, error){
 		AlbumId: A.ID,
 	}
 
-	md5sum, err := md5sum(Path)
+	md5sum, err := checksum.Md5sum(Path)
 	if err != nil{
 		return nil, err
 	}
@@ -84,6 +83,7 @@ func CreatePhoto(db *gorp.DbMap, A *Album, Path string) (*Photo, error){
 	return p, nil
 }
 
+
 func (p *Photo) setMini(targetWidth uint, targetHeight uint, quality int, miniDirPath string, originalPath string) error{
 		var miniP=miniDirPath+PathSeparator+p.LocalPath
 		err:=imgResize.MakeMini(targetWidth, targetHeight, quality, originalPath, miniP)
@@ -113,19 +113,6 @@ func getExifDate(filePath string) (*time.Time, error){
     return &t, err
 }
 
-func md5sum(filePath string) (string, error){
-	file, err := os.Open(filePath)
-	if err != nil {
-		return "", err
-	}
-	defer file.Close()
-
-	hash := md5.New()
-	if _, err := io.Copy(hash, file); err != nil {
-		return "", err
-	}
-	return fmt.Sprintf("%x", hash.Sum(nil)), nil
-}
 
 // Load album by ID
 func LoadPhotoFromMd5(db *gorp.DbMap, Md5Sum string) (*Photo, error) {
@@ -147,9 +134,9 @@ func LoadPhotoFromMd5(db *gorp.DbMap, Md5Sum string) (*Photo, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	return &photo, nil
 }
+
 
 // Verify that a photo object is valid before creating/updating it
 func (p *Photo) Valid() error {

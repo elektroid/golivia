@@ -3,11 +3,8 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/elektroid/golivia/models"
-	"github.com/elektroid/golivia/constants"
-	"os"
-	"log"
-	"errors"
-	"io"
+	"github.com/elektroid/golivia/utils/web"
+
 )
 
 type NewPhotoIn struct {
@@ -16,7 +13,7 @@ type NewPhotoIn struct {
 
 func NewPhoto(c *gin.Context, in *NewPhotoIn) (*models.Photo, error) {
 
-	path, err := ExtractFileFromForm(c)
+	path, err := web.ExtractFileFromForm(c, "upload")
 	if err!=nil{
 		return nil, err	
 	}
@@ -35,24 +32,14 @@ func NewPhoto(c *gin.Context, in *NewPhotoIn) (*models.Photo, error) {
 }
 
 
-func ExtractFileFromForm(c *gin.Context) (string, error ){
-	file, header , err := c.Request.FormFile("upload")
-	if err!=nil{
-		log.Print(err)
-		return "", err
-	}
-    filename := header.Filename
-    out, err := os.Create(constants.TmpDir+"/"+filename)
-    if err != nil {
-        log.Fatal(err)
-		return "", errors.New("extraction failure, not able to create")
-    }
-    defer out.Close()
-    _, err = io.Copy(out, file)
-    if err != nil {
-        log.Fatal(err)
-	    return "", errors.New("extraction failure, not able to copy content")
-    }   
-	return constants.TmpDir+"/"+filename, nil
+
+type CheckPhotoIn struct {
+	Md5 string `path:"md5, required"`
 }
+func CheckPhotoMd5(c *gin.Context, in *CheckPhotoIn) (*models.Photo, error) {
+	p, err := models.LoadPhotoFromMd5(db, in.Md5)
+	return p, err
+}
+
+
 

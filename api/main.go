@@ -5,8 +5,8 @@ import (
 	"github.com/go-gorp/gorp"
 	"github.com/loopfz/gadgeto/zesty"
 	"github.com/loopfz/gadgeto/tonic"
-	"github.com/loopfz/gadgeto/tonic/jujuerrhook"
 	"github.com/elektroid/golivia/constants"
+	"github.com/elektroid/golivia/utils/errors"
 	"github.com/elektroid/golivia/db/initdb"
 	"flag"
 	"fmt"
@@ -63,7 +63,7 @@ func main() {
 	}
 	db = tdb
 
-	tonic.SetErrorHook(jujuerrhook.ErrHook)
+	tonic.SetErrorHook(goofs.ErrHook)
 	zesty.RegisterDB(zesty.NewDB(tdb), constants.DBName)
 
 	router := gin.Default()
@@ -76,6 +76,7 @@ func main() {
   	}))
 	administrated.POST("/album", tonic.Handler(NewAlbum, 201))
 	administrated.POST("/album/:album_id/photo", tonic.Handler(NewPhoto, 201))
+	administrated.GET("/photo/:md5", tonic.Handler(CheckPhotoMd5, 201))
 
 	// set up client routes, might become 100 % static
 	viewers := router.Group("/", gin.BasicAuth(gin.Accounts{
@@ -86,6 +87,7 @@ func main() {
 	
 	viewers.GET("/by_dates", tonic.Handler(GetPopulatedDates, 201))
 	viewers.GET("/date/:year/:month", tonic.Handler(GetAlbumByDate, 201))
+
 
 
 	router.Static("/photos", constants.PhotosDir)
