@@ -1,8 +1,8 @@
 package models_test
 
 import (
-	"testing"
 	"github.com/elektroid/golivia/models"
+	"testing"
 )
 
 func TestAlbum(t *testing.T) {
@@ -14,11 +14,9 @@ func TestAlbum(t *testing.T) {
 	// and so on ... let's see if we make methods in the models or write code in the handlers
 
 	_, err := models.CreateAlbum(nil, "random title", "a test album", models.PUBLIC)
-	if err== nil {
+	if err == nil {
 		t.Error("Failed to detect nil db")
 		t.Fatal(err)
 	}
 
 }
-
-

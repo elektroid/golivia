@@ -1,30 +1,30 @@
 package models
 
 import (
-	"errors"
-	"github.com/Masterminds/squirrel"
-	"github.com/go-gorp/gorp"
-	"github.com/elektroid/golivia/utils/sqlgenerator"
-	"github.com/elektroid/golivia/constants"
+	"database/sql"
 	"fmt"
-//	"log"
+	"github.com/Masterminds/squirrel"
+	"github.com/elektroid/golivia/constants"
+	"github.com/elektroid/golivia/utils/sqlgenerator"
+	"github.com/go-gorp/gorp"
+	"github.com/juju/errors"
+	//	"log"
 )
 
 const (
 	// Const names to be retrievable from model code
 	PUBLIC  = "public"
-	PRIVATE   = "private"
-
+	PRIVATE = "private"
 )
 
 type Album struct {
-	ID         int64  `json:"id" db:"id"`
-	Title  	   string `json:"title" db:"title"`
-	Description string `json:"description" db:"description"`
-	ViewType string `json:"view_type" db:"view_type"`
-	MiniatureWidth uint `json:"miniature_width" db:"miniatureWidth"`
-	MiniatureHeight uint `json:"miniature_height" db:"miniatureHeight"`
-	Photos []*Photo `db:"-"`
+	ID              int64    `json:"id" db:"id"`
+	Title           string   `json:"title" db:"title"`
+	Description     string   `json:"description" db:"description"`
+	ViewType        string   `json:"view_type" db:"view_type"`
+	MiniatureWidth  uint     `json:"miniature_width" db:"miniatureWidth"`
+	MiniatureHeight uint     `json:"miniature_height" db:"miniatureHeight"`
+	Photos          []*Photo `db:"-"`
 }
 
 // Create an icon
@@ -34,11 +34,11 @@ func CreateAlbum(db *gorp.DbMap, Title string, Description string, ViewType stri
 	}
 
 	a := &Album{
-		Title : Title,
-		Description: Description,
-		ViewType: ViewType,
-		Photos: []*Photo{},
-		MiniatureWidth: constants.DEFAULT_MINIATURE_W,
+		Title:           Title,
+		Description:     Description,
+		ViewType:        ViewType,
+		Photos:          []*Photo{},
+		MiniatureWidth:  constants.DEFAULT_MINIATURE_W,
 		MiniatureHeight: constants.DEFAULT_MINIATURE_H,
 	}
 
@@ -55,7 +55,7 @@ func CreateAlbum(db *gorp.DbMap, Title string, Description string, ViewType stri
 	return a, nil
 }
 
-func (a *Album) LoadPhotos(db *gorp.DbMap)(error){
+func (a *Album) LoadPhotos(db *gorp.DbMap) error {
 	if db == nil {
 		return errors.New("Missing db parameter to list albums")
 	}
@@ -69,54 +69,48 @@ func (a *Album) LoadPhotos(db *gorp.DbMap)(error){
 	var photos []*Photo
 	_, err = db.Select(&photos, query, args...)
 	if err != nil {
-		return  err
+		return err
 	}
-	a.Photos=photos
+	a.Photos = photos
 	return nil
 }
 
-
-func LoadPhotosByDate(db *gorp.DbMap, Year int64, Month int64)(*Album, error){
+func LoadPhotosByDate(db *gorp.DbMap, Year int64, Month int64) (*Album, error) {
 	if db == nil {
 		return nil, errors.New("Missing db parameter to list albums")
 	}
 
-
-
-	query := "SELECT * FROM photo WHERE strftime('%Y-%m', time) = '"+fmt.Sprintf("%d-%02d", Year, Month)+"'"
+	query := "SELECT * FROM photo WHERE strftime('%Y-%m', time) = '" + fmt.Sprintf("%d-%02d", Year, Month) + "'"
 	fmt.Print(query)
 
 	a := &Album{
-		Title : fmt.Sprintf("Album for %d-%02d", Year, Month),
-		Description: fmt.Sprintf("Album for %d-%02d", Year, Month),
-		MiniatureWidth: constants.DEFAULT_MINIATURE_W,
+		Title:           fmt.Sprintf("Album for %d-%02d", Year, Month),
+		Description:     fmt.Sprintf("Album for %d-%02d", Year, Month),
+		MiniatureWidth:  constants.DEFAULT_MINIATURE_W,
 		MiniatureHeight: constants.DEFAULT_MINIATURE_H,
 	}
-
 
 	var photos []*Photo
 	_, err := db.Select(&photos, query, nil)
 	if err != nil {
 		return nil, err
 	}
-	a.Photos=photos
+	a.Photos = photos
 	return a, nil
 
 }
 
-
-
-func ListAlbums(db *gorp.DbMap, ViewType *string)([]*Album, error){
+func ListAlbums(db *gorp.DbMap, ViewType *string) ([]*Album, error) {
 	if db == nil {
 		return nil, errors.New("Missing db parameter to list albums")
 	}
 
 	selector := sqlgenerator.PGsql.Select(`*`).From(`"album"`)
 
-	if ViewType != nil{
+	if ViewType != nil {
 		selector = selector.Where(squirrel.Eq{`view_type`: ViewType})
 	}
-		
+
 	query, args, err := selector.ToSql()
 	if err != nil {
 		return nil, err
@@ -131,7 +125,6 @@ func ListAlbums(db *gorp.DbMap, ViewType *string)([]*Album, error){
 	return albums, nil
 }
 
-
 // Load album by ID
 func LoadAlbumFromID(db *gorp.DbMap, ID int64) (*Album, error) {
 	if db == nil {
@@ -144,12 +137,17 @@ func LoadAlbumFromID(db *gorp.DbMap, ID int64) (*Album, error) {
 
 	query, args, err := selector.ToSql()
 	if err != nil {
+
 		return nil, err
 	}
 
 	var album Album
 	err = db.SelectOne(&album, query, args...)
 	if err != nil {
+		if err == sql.ErrNoRows {
+
+			return nil, errors.NewNotFound(err, "photo not found for md5")
+		}
 		return nil, err
 	}
 
