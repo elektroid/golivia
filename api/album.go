@@ -91,11 +91,19 @@ func GetAlbumByDate(c *gin.Context, in *GetAlbumByDateIn) error {
 		return err
 	}
 
-	content, err := generator.GetAlbumHtml(a)
+	content, err := generator.GetGalleriaHtml(a)
 	if err != nil {
 		return err
 	}
 
 	c.Data(200, "text/html", []byte(content))
 	return nil
+}
+
+type GetPopulatedDatesIn struct {
+	Year string `query:"year" `
+}
+
+func GetPopulatedDates(c *gin.Context, in *GetPopulatedDatesIn) ([]*models.Populated, error) {
+	return models.ListPopulatedDates(db)
 }

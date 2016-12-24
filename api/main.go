@@ -83,6 +83,7 @@ func main() {
 	viewers.GET("/gal/:album_id", tonic.Handler(GetGalleriaHtml, 201))
 	viewers.GET("/dates/:year/:month", tonic.Handler(GetAlbumByDate, 201))
 	viewers.GET("/photo/:md5", tonic.Handler(LoadPhotoFromMD5, 201))
+	viewers.GET("/browse", tonic.Handler(GetPopulatedDates, 201))
 
 	router.Static("/photos", constants.PhotosDir)
 	//  router.StaticFS("/more_static", http.Dir("my_file_system"))
