@@ -69,6 +69,9 @@ func (a *Album) LoadPhotos(db *gorp.DbMap) error {
 	var photos []*Photo
 	_, err = db.Select(&photos, query, args...)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return errors.NewNotFound(err, "no photo in album")
+		}
 		return err
 	}
 	a.Photos = photos
@@ -81,7 +84,6 @@ func LoadPhotosByDate(db *gorp.DbMap, Year int64, Month int64) (*Album, error) {
 	}
 
 	query := "SELECT * FROM photo WHERE strftime('%Y-%m', time) = '" + fmt.Sprintf("%d-%02d", Year, Month) + "'"
-	fmt.Print(query)
 
 	a := &Album{
 		Title:           fmt.Sprintf("Album for %d-%02d", Year, Month),
@@ -97,6 +99,29 @@ func LoadPhotosByDate(db *gorp.DbMap, Year int64, Month int64) (*Album, error) {
 	}
 	a.Photos = photos
 	return a, nil
+
+}
+
+type Populated struct {
+	Month string `db:"month" json:"month"`
+	Year  string `db:"year" json:"year"`
+	Full  string `db:"d" json:"full"`
+}
+
+func ListPopulatedDates(db *gorp.DbMap) ([]*Populated, error) {
+
+	query := "SELECT distinct(strftime('%Y-%m', time)) as d, strftime('%Y') as month,  strftime('%m') as year FROM photo "
+	var pops []*Populated
+	_, err := db.Select(&pops, query)
+	if err != nil {
+		if err == sql.ErrNoRows {
+
+			return nil, errors.NewNotFound(err, "no albums")
+		}
+		return nil, err
+	}
+
+	return pops, nil
 
 }
 
@@ -119,6 +144,10 @@ func ListAlbums(db *gorp.DbMap, ViewType *string) ([]*Album, error) {
 	var albums []*Album
 	_, err = db.Select(&albums, query, args...)
 	if err != nil {
+		if err == sql.ErrNoRows {
+
+			return nil, errors.NewNotFound(err, "no albums")
+		}
 		return nil, err
 	}
 

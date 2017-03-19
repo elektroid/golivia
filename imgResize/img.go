@@ -4,6 +4,7 @@ import (
 	"gopkg.in/gographics/imagick.v1/imagick"
 	"os"
 	"io"
+"log"
 )
 
 
@@ -59,7 +60,11 @@ func MakeMini(targetWidth uint, targetHeight uint, quality int, inputFile string
 	// Get original logo size
 	width := mw.GetImageWidth()
 	height := mw.GetImageHeight()
-	baseProportion := width / height
+	baseProportion := float64(width) / float64(height)
+
+	log.Printf("proportion: %f - %+v", baseProportion, baseProportion)
+	log.Printf("target w %d h %d\n", targetWidth, targetHeight)
+	log.Printf("real w %d h %d\n", width, height)
 
 	if width<targetWidth{
 		targetWidth=width
@@ -69,10 +74,9 @@ func MakeMini(targetWidth uint, targetHeight uint, quality int, inputFile string
 		targetHeight=height
 	}
 
-	if (float64(targetHeight * baseProportion) < float64(0.8) * float64(targetWidth)) || (float64(targetHeight * baseProportion) > float64(1.2) * float64(targetWidth)){
-
-		targetWidth = baseProportion * targetHeight
-	}
+	log.Printf("final target iwth p %f w %d h %d\n", baseProportion, targetWidth, targetHeight) 
+	targetWidth = uint(float64(baseProportion) * float64(targetHeight))
+	log.Printf("final corrected target w %d h %d\n", targetWidth, targetHeight) 
 
 	// Resize the image using the Lanczos filter
 	// The blur factor is a float, where > 1 is blurry, < 1 is sharp

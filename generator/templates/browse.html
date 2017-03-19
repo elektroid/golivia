@@ -1,0 +1,26 @@
+<html>
+<head>
+
+<title>Photos by dates</title>
+</head>
+
+<body>
+
+
+
+{{range $date := .}}
+
+
+  
+  <div class="desc">
+	<a href="/dates/{{$date.Full | DashToSlash}}">{{$date.Full | DashToSlash}}</a>
+  </div>
+
+
+{{ end }}
+
+
+
+
+</body>
+</html> 

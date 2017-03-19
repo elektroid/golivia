@@ -1,58 +1,51 @@
 package generator
 
 import (
-	"html/template"
-    "os"
-    "bytes"
-    "log"
-    "path/filepath"
+	"bytes"
+	log "github.com/Sirupsen/logrus"
 	"github.com/elektroid/golivia/models"
-	)
+	"html/template"
+	"path/filepath"
+	"strings"
+)
 
+var BaseTemplate = "./generator/templates/album_template.html"
+var GalleriaTemplate = "./generator/templates/galleria_template.html"
+var BrowseTemplate = "./generator/templates/browse.html"
 
-var BaseTemplate="./generator/templates/album_template.html"
-var GalleriaTemplate="./generator/templates/galleria_template.html"
+func getContent(album interface{}, template_file string) (string, error) {
 
-func getContent(album *models.Album, template_file string) (string, error){
-   t := template.New("album") //create a new template
-    var err error
-    t, err = t.ParseFiles(template_file) //open and parse a template text file
-    if err!=nil{
-        return "", err
-    }
-   
-    var w bytes.Buffer 
+	funcMap := template.FuncMap{
+		"DashToSlash": func(s string) string { return strings.Replace(s, "-", "/", -1) },
+	}
 
-    _, file := filepath.Split(template_file)
-    if err = t.ExecuteTemplate(&w, file, album); err != nil {
-        w.WriteString(err.Error())
-        log.Fatal(err)
-        return "", err
-    }
-    
-    return w.String(), nil
+	t := template.New("album").Funcs(funcMap) //create a new template
+	var err error
+	t, err = t.ParseFiles(template_file) //open and parse a template text file
+	if err != nil {
+		return "", err
+	}
+
+	var w bytes.Buffer
+
+	_, file := filepath.Split(template_file)
+	if err = t.ExecuteTemplate(&w, file, album); err != nil {
+		w.WriteString(err.Error())
+		log.Print(err)
+		return "", err
+	}
+
+	return w.String(), nil
 }
 
-func GenerateAlbum(album *models.Album) error{
-	content, err := getContent(album, BaseTemplate)
-    if err != nil{
-        return err
-    }
-    f, err := os.Create("/tmp/album.html")
-    if err!=nil{
-      return err
-    }
-
-    f.WriteString(content)
-
-    f.Close()
-    return nil
+func GetAlbumHtml(album *models.Album) (string, error) {
+	return getContent(album, BaseTemplate)
 }
 
-func GetAlbumHtml(album *models.Album) ( string, error){
-    return getContent(album, BaseTemplate)
+func GetGalleriaHtml(album *models.Album) (string, error) {
+	return getContent(album, GalleriaTemplate)
 }
 
-func GetGalleriaHtml(album *models.Album) ( string, error){
-    return getContent(album, GalleriaTemplate)
+func GetDatesListHtml(dates []*models.Populated) (string, error) {
+	return getContent(dates, BrowseTemplate)
 }
