@@ -104,11 +104,13 @@ func LoadPhotosByDate(db *gorp.DbMap, Year int64, Month int64) (*Album, error) {
 
 type Populated struct {
 	Month string `db:"month" json:"month"`
+	Year  string `db:"year" json:"year"`
+	Full  string `db:"d" json:"full"`
 }
 
 func ListPopulatedDates(db *gorp.DbMap) ([]*Populated, error) {
 
-	query := "SELECT distinct(strftime('%Y-%m', time)) as month FROM photo "
+	query := "SELECT distinct(strftime('%Y-%m', time)) as d, strftime('%Y') as month,  strftime('%m') as year FROM photo "
 	var pops []*Populated
 	_, err := db.Select(&pops, query)
 	if err != nil {

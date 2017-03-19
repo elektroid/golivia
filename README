@@ -9,6 +9,8 @@ You need at least one album to post photos, however since I added exif parsing I
 
 
 
+need to clone photoswipe
+
 ---------------
 I created this project to have a simple way to share my daugther's pictures (Olivia => Golivia, I probably deserve a price for originality) with the family on a self-hosted solution
 I don't really want to use flickr, don't want to install apps to spy on me, just want a simple "add to online gallery" functionality and want to play a bit with golang :)

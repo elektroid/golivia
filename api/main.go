@@ -78,7 +78,6 @@ func main() {
 	viewers := router.Group("/", gin.BasicAuth(gin.Accounts{
 		"amigos": *usersPassword,
 	}))
-	viewers.POST("/album/:album_id", tonic.Handler(GenerateAlbum, 201))
 	viewers.GET("/album/:album_id", tonic.Handler(GetAlbumHtml, 201))
 	viewers.GET("/gal/:album_id", tonic.Handler(GetGalleriaHtml, 201))
 	viewers.GET("/dates/:year/:month", tonic.Handler(GetAlbumByDate, 201))
